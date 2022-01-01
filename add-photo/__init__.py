@@ -10,8 +10,9 @@ logging.Logger.root.level = 10
 
 endpoint = "https://cosmosdbcom682.documents.azure.com:443/"
 key = 'UZ2HCpT6Y0BSqgBXuMJrKpXWFnuu3LhT8swGigQhMdaVPkUwY74GW5KXacrvWQve4L2BXrCjh5mVqPNAkAl9rA=='
-blobService = BlobServiceClient(account_url="https://ulsterphotostore.blob.core.windows.net/imagestorecontainer?sp=r&st=2021-12-30T22:16:39Z&se=2022-01-14T06:16:39Z&spr=https&sv=2020-08-04&sr=c&sig=OvBFgaavvBJsqi7%2BNoAdUEpA6rsE77t78t9npiG2elg%3D")
 cosmosClient = CosmosClient(endpoint, key)
+
+blobService = BlobServiceClient(account_url="https://ulsterphotostore.blob.core.windows.net/imagestorecontainer?sp=r&st=2021-12-30T22:16:39Z&se=2022-01-14T06:16:39Z&spr=https&sv=2020-08-04&sr=c&sig=OvBFgaavvBJsqi7%2BNoAdUEpA6rsE77t78t9npiG2elg%3D")
 partition_key = PartitionKey(path='/id')
 
 db_name = 'photo'
@@ -30,7 +31,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
         blobId = uuid.uuid4().hex
 
-        blob = BlobClient.from_connection_string(conn_str= "DefaultEndpointsProtocol=https;AccountName=ulsterphotostore;AccountKey=VhW+zCGui/nt0AJv3XEzYJUMjEhlVIEO7w0uFctJeP4G3l/zeAsiWg3HJEYxviDXlJJpG8CgGkAMYioyP/iRPQ==;EndpointSuffix=core.windows.net", container_name="imagestorecontainer", blob_name=blobId)
+        blob = BlobClient.from_connection_string(conn_str="DefaultEndpointsProtocol=https;AccountName=ulsterphotostore;AccountKey=VhW+zCGui/nt0AJv3XEzYJUMjEhlVIEO7w0uFctJeP4G3l/zeAsiWg3HJEYxviDXlJJpG8CgGkAMYioyP/iRPQ==;EndpointSuffix=core.windows.net", container_name="imagestorecontainer", blob_name=blobId)
 
         imageUpload = req.files["File"]
         filestream = imageUpload.stream
