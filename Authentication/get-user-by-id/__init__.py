@@ -11,27 +11,17 @@ key = 'UZ2HCpT6Y0BSqgBXuMJrKpXWFnuu3LhT8swGigQhMdaVPkUwY74GW5KXacrvWQve4L2BXrCjh
 cosmosClient = CosmosClient(endpoint, key)
 partition_key = PartitionKey(path='/id')
 
-db_name = 'posts'
-db = cosmosClient.create_database_if_not_exists(id=db_name)
-
-cont_name = 'post'
-cosmosContainer = db.create_container_if_not_exists(
-    id=cont_name,
-    partition_key=partition_key,
-    offer_throughput=400
-)
-
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
 
-    db = cosmosClient.get_database_client('posts')
-    container = db.get_container_client('post')
- 
+    db = cosmosClient.get_database_client('users')
+    container = db.get_container_client('user')
+
     userId = req.form["userId"]
 
-    query = "SELECT * FROM post WHERE post.userId=@userId ORDER BY post.date DESC"
+    query = "SELECT * FROM user WHERE user.userId=@userId"
 
-    user_post_list = list(container.query_items(
+    get_user_by_id = list(container.query_items(
         query=query,
         parameters=[{
             "name":"@userId", "value": userId
@@ -39,7 +29,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         enable_cross_partition_query=True
     ))
 
-    logging.info(user_post_list)
+    logging.info(get_user_by_id)
 
     header = {
         'Access-Control-Allow-Origin': '*',
@@ -47,4 +37,4 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         'Access-Control-Allow-Methods': 'GET,POST'
     }
         
-    return func.HttpResponse(json.dumps(user_post_list), headers=header, mimetype="application/json", status_code=200)
+    return func.HttpResponse(json.dumps(get_user_by_id), headers=header, mimetype="application/json", status_code=200)
