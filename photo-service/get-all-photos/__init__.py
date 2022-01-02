@@ -25,5 +25,11 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     ))
 
     logging.info(image_list)
+
+    header = {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        'Access-Control-Allow-Methods': 'GET,POST'
+    }
         
-    return func.HttpResponse(json.dumps(image_list), mimetype="application/json", status_code=200)
+    return func.HttpResponse(json.dumps(image_list), headers=header, mimetype="application/json", status_code=200)
