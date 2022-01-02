@@ -41,7 +41,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         urlForCosmos = blob.url
 
         if blob.url is None:
-            return  func.HttpResponse("unable to create blob try again", status_code=409)
+            return  func.HttpResponse("unable to create video try again", status_code=409)
 
         videoData = {
             'fileLocator':videoId,

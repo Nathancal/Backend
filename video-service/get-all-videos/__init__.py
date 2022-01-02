@@ -2,8 +2,6 @@ import logging
 import json
 import azure.functions as func
 from azure.cosmos import CosmosClient, PartitionKey
-from azure.storage.blob import ContainerClient
-from azure.storage.blob._shared.base_client import _LOGGER
 
 
 endpoint = "https://cosmosdbcom682.documents.azure.com:443/"
@@ -19,12 +17,12 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
     query = "SELECT * FROM video"
 
-    image_list = list(container.query_items(
+    video_list = list(container.query_items(
         query=query,
         enable_cross_partition_query=True
     ))
 
-    logging.info(image_list)
+    logging.info(video_list)
 
     header = {
         'Access-Control-Allow-Origin': '*',
@@ -32,4 +30,4 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         'Access-Control-Allow-Methods': 'GET,POST'
     }
         
-    return func.HttpResponse(json.dumps(image_list), headers=header, mimetype="application/json", status_code=200)
+    return func.HttpResponse(json.dumps(video_list), headers=header, mimetype="application/json", status_code=200)
