@@ -26,44 +26,28 @@ cosmosContainer = db.create_container_if_not_exists(
 
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
-    try:
 
+    db = cosmosClient.get_database_client('posts')
+    container = db.get_container_client('post')
 
-        post_title = req.form["postTitle"]
-        post_body = req.form["postBody"]
-        post_date = datetime.datetime.utcnow()
-        media_url = req.form["mediaUrl"]
-        media_title = req.form["mediaTitle"]
-        user_id = req.form["userId"]
+    userId = req.form["userId"]
 
-        post = {
-            'id': uuid.uuid4().hex,
-            'userId': user_id,
-            'title': post_title,
-            'body': post_body,
-            'date': post_date,
-            'mediaUrl': media_url,
-            'mediaTitle': media_title
-        }
-        cosmosContainer.create_item(post)
+    query = "SELECT * FROM post WHERE post.userId=@userId"
 
-        resObj = {
-        "message": "post successfully created.",
-        "data": json.dumps(post)
-        }
+    user_post_list = list(container.query_items(
+        query=query,
+        parameters=[{
+            "name":"@userId", "value": userId
+        }],
+        enable_cross_partition_query=True
+    ))
 
-        return func.HttpResponse(json.dumps(resObj), status_code=201)
-    except ValueError:
+    logging.info(user_post_list)
+
+    header = {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        'Access-Control-Allow-Methods': 'GET,POST'
+    }
         
-        resObj = {
-        "message": "Value Error"
-        }
-        return func.HttpResponse(json.dumps(resObj), status_code=500)
-    except RuntimeError:
-        resObj = {
-        "message": "Runtime error"
-        }
-        return func.HttpResponse(json.dumps(resObj), status_code=500)
-
-
-      
+    return func.HttpResponse(json.dumps(user_post_list), headers=header, mimetype="application/json", status_code=200)

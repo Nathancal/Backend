@@ -29,7 +29,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     splitHash = hash.split("'", 3)
 
 
-    query = "SELECT * FROM users WHERE users.email=@email"
+    query = "SELECT * FROM user WHERE user.email=@email"
 
     check_user = list(user_container.query_items(
         query=query,
