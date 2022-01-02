@@ -12,7 +12,7 @@ endpoint = "https://cosmosdbcom682.documents.azure.com:443/"
 key = 'UZ2HCpT6Y0BSqgBXuMJrKpXWFnuu3LhT8swGigQhMdaVPkUwY74GW5KXacrvWQve4L2BXrCjh5mVqPNAkAl9rA=='
 cosmosClient = CosmosClient(endpoint, key)
 
-blobService = BlobServiceClient(account_url="https://ulsterphotostore.blob.core.windows.net/imagestorecontainer?sp=r&st=2021-12-30T22:16:39Z&se=2022-01-14T06:16:39Z&spr=https&sv=2020-08-04&sr=c&sig=OvBFgaavvBJsqi7%2BNoAdUEpA6rsE77t78t9npiG2elg%3D")
+blobService = BlobServiceClient(account_url="https://ulstervideostore.blob.core.windows.net/videos?sp=rad&st=2022-01-02T16:46:19Z&se=2025-01-03T00:46:19Z&spr=https&sv=2020-08-04&sr=c&sig=grBTSBqt2CtL2%2BXb8AgYnBXx88XbvQ%2FG6EYobx33yRA%3D")
 partition_key = PartitionKey(path='/id')
 
 db_name = 'videos'
@@ -29,12 +29,12 @@ cosmosContainer = db.create_container_if_not_exists(
 def main(req: func.HttpRequest) -> func.HttpResponse:
     try:
 
-        blobId = uuid.uuid4().hex
+        videoId = uuid.uuid4().hex
 
-        blob = BlobClient.from_connection_string(conn_str="DefaultEndpointsProtocol=https;AccountName=ulsterphotostore;AccountKey=VhW+zCGui/nt0AJv3XEzYJUMjEhlVIEO7w0uFctJeP4G3l/zeAsiWg3HJEYxviDXlJJpG8CgGkAMYioyP/iRPQ==;EndpointSuffix=core.windows.net", container_name="imagestorecontainer", blob_name=blobId)
+        blob = BlobClient.from_connection_string(conn_str="DefaultEndpointsProtocol=https;AccountName=ulstervideostore;AccountKey=5MZNKoHbZLVcRvH4RdlnUitC7GW58wL8tYXGql/EW30WcSdBchbx6BsFbDcqgorY3H1rA3r3KFf2BILWkZlEmA==;EndpointSuffix=core.windows.net", container_name="videos", blob_name=blobId)
 
-        imageUpload = req.files["File"]
-        filestream = imageUpload.stream
+        videoUpload = req.files["File"]
+        filestream = videoUpload.stream
         filestream.seek(0)
 
         blob.upload_blob(filestream.read(), blob_type="BlockBlob")
@@ -43,15 +43,16 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         if blob.url is None:
             return  func.HttpResponse("unable to create blob try again", status_code=409)
 
-        imageData = {
-            'fileLocator':blobId,
+        videoData = {
+            'fileLocator':videoId,
             'filePath': urlForCosmos,
-            'id': blobId,
+            'id': videoId,
             'fileName': req.form["FileName"],
-            'userId': req.form['userID']
+            'fileType': req.form["FileType"],
+            'userId': req.form['userId']
         }
 
-        cosmosContainer.create_item(imageData)
+        cosmosContainer.create_item(videoData)
 
         resObj = {
         "message": "image successfully posted"
