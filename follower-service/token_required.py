@@ -1,6 +1,5 @@
 from functools import wraps
 import logging
-import re
 import azure.functions as httpReqFunc
 import jwt
 import json

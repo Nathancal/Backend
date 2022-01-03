@@ -34,7 +34,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             'userId': userId,
             'postId': req.form["postId"],
             'comment': req.form["comment"],
-            'date': datetime.datetime.utcnow()
+            'date': datetime.datetime.utcnow().isoformat()
             
         }
         cosmosContainer.create_item(add_comment)
