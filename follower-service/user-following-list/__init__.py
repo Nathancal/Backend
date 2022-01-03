@@ -1,7 +1,8 @@
 import logging
 import azure.functions as func
-from azure.cosmos import CosmosClient, PartitionKey, partition_key
+from azure.cosmos import CosmosClient, PartitionKey
 import json
+from token_required import jwt_required
 
 logging.Logger.root.level = 10
 
@@ -11,7 +12,7 @@ key = 'UZ2HCpT6Y0BSqgBXuMJrKpXWFnuu3LhT8swGigQhMdaVPkUwY74GW5KXacrvWQve4L2BXrCjh
 cosmosClient = CosmosClient(endpoint, key)
 partition_key = PartitionKey(path='/id')
 
-
+@jwt_required
 def main(req: func.HttpRequest) -> func.HttpResponse:
 
     db = cosmosClient.get_database_client('following')

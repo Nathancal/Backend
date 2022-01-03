@@ -3,6 +3,7 @@ import azure.functions as func
 from azure.cosmos import CosmosClient, PartitionKey, partition_key
 import uuid
 import json
+from token_required import jwt_required
 
 logging.Logger.root.level = 10
 
@@ -22,7 +23,7 @@ cosmosContainer = db.create_container_if_not_exists(
     offer_throughput=400
 )
 
-
+@jwt_required
 def main(req: func.HttpRequest) -> func.HttpResponse:
     try:
         userId = req.form["userId"]
