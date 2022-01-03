@@ -1,15 +1,13 @@
 from functools import wraps
 import logging
+import re
 import azure.functions as httpReqFunc
 import jwt
 import json
-from azure.identity import DefaultAzureCredential
-from azure.keyvault.secrets import SecretClient
+from azure.appconfiguration import AzureAppConfigurationClient, ConfigurationSetting
 
-credential = DefaultAzureCredential()
-vaultUri = f"https://keyconfig.vault.azure.net"
-keyVault = SecretClient(vault_url=vaultUri, credential=credential)
-
+keyvaultURI = 'Endpoint=https://cloudappconfig.azconfig.io;Id=C+TH-l0-s0:8eSYgWDN0V7IVttSB7Mf;Secret=QF7Lpj630DCyIn5gXyLCd6djdf1GGjWBQwHbkwQD/0g='
+app_config_client = AzureAppConfigurationClient.from_connection_string(keyvaultURI)
 
 def jwt_required(func):
     @wraps(func)
@@ -18,36 +16,23 @@ def jwt_required(func):
         logging.info(req.headers.get("Host"))
         logging.info(req.headers.get("x-access-token"))
 
-        
-        if not req.headers['x-access-token']:
-            
-            resObj = {"message": "Token is missing"}
+        token = None
 
-            return httpReqFunc.HttpResponse(json.dumps(resObj),status_code=401)
-
-        token = req.headers['x-access-token']
-
-        logging.info(token)
+        if 'x-access-token' in req.headers:
+            token = req.headers['x-access-token']
 
         if not token:
 
             resObj = {"message": "Token is missing"}
 
             return httpReqFunc.HttpResponse(json.dumps(resObj),status_code=401)
-            
-     
-        secret_name= "token-secret"
-        tokenSecret = keyVault.get_secret(secret_name)
-
-        logging.info(tokenSecret.value)
-        logging.info(token)
 
         try:
 
-            secret_name= "token-secret"
-            tokenSecret = keyVault.get_secret(secret_name)
+            token_secret = app_config_client.get_configuration_setting(key='token-secret')
 
-            data = jwt.decode(str(token), tokenSecret.value, algorithms="HS256")
+
+            data = jwt.decode(str(token), token_secret.value, algorithms="HS256")
 
         except:
             

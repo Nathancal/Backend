@@ -1,20 +1,18 @@
 import logging
-from azure import identity
 import jwt
 import json
 import bcrypt
 import datetime
 import azure.functions as func
 from azure.cosmos import CosmosClient, PartitionKey
-from azure.keyvault.secrets import SecretClient
-from azure.identity import DefaultAzureCredential
+from azure.appconfiguration import AzureAppConfigurationClient, ConfigurationSetting
+
 
 endpoint = "https://cosmosdbcom682.documents.azure.com:443/"
 key = 'UZ2HCpT6Y0BSqgBXuMJrKpXWFnuu3LhT8swGigQhMdaVPkUwY74GW5KXacrvWQve4L2BXrCjh5mVqPNAkAl9rA=='
 
-credential = DefaultAzureCredential()
-vaultUri = f"https://keyconfig.vault.azure.net"
-keyVault = SecretClient(vault_url=vaultUri, credential=credential)
+keyvaultURI = 'Endpoint=https://cloudappconfig.azconfig.io;Id=C+TH-l0-s0:8eSYgWDN0V7IVttSB7Mf;Secret=QF7Lpj630DCyIn5gXyLCd6djdf1GGjWBQwHbkwQD/0g='
+app_config_client = AzureAppConfigurationClient.from_connection_string(keyvaultURI)
 cosmosClient = CosmosClient(endpoint, key)
 partition_key = PartitionKey(path='/id')
 
@@ -49,15 +47,15 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         if bcrypt.checkpw(bytes(password, 'UTF-8'), crossRefPassword):
 
             try:
-                secret_name= "token-secret"
-                tokenSecret = keyVault.get_secret(secret_name)
+                token_secret = app_config_client.get_configuration_setting(key='token-secret')
+
 
                 token = jwt.encode({
                     'user': check_email["email"],
                     'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=int(req.form["duration"]))}
-                    ,tokenSecret.value, algorithm="HS256")
+                    ,token_secret.value, algorithm="HS256")
             
-                logging.info(tokenSecret.value)
+                logging.info(token_secret.value)
 
                 body= {
                     'user': json.dumps(check_email),
