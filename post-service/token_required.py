@@ -19,9 +19,10 @@ def jwt_required(func):
         logging.info(req.headers.get("Host"))
         logging.info(req.headers.get("x-access-token"))
 
-        token = req.headers['x-access-token']
+        token = None
 
-        logging.info(token)
+        if 'x-access-token' in req.headers:
+            token = req.headers['x-access-token']
 
         if not token:
 

@@ -18,6 +18,13 @@ def jwt_required(func):
         logging.info(req.headers.get("Host"))
         logging.info(req.headers.get("x-access-token"))
 
+        
+        if not req.headers['x-access-token']:
+            
+            resObj = {"message": "Token is missing"}
+
+            return httpReqFunc.HttpResponse(json.dumps(resObj),status_code=401)
+
         token = req.headers['x-access-token']
 
         logging.info(token)

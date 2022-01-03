@@ -20,7 +20,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
     userId = req.form["userId"]
 
-    query = "SELECT * FROM user WHERE user.userId=@userId"
+    query = "SELECT follows FROM following WHERE following.userId=@userId"
 
     get_follows_list = list(container.query_items(
         query=query,
