@@ -31,7 +31,6 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
         post_title = req.form["postTitle"]
         post_body = req.form["postBody"]
-        post_date = datetime.datetime.utcnow()
         user_id = req.form["userId"]
 
         if req.form["mediaUrl"]:
@@ -43,7 +42,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 'userId': user_id,
                 'title': post_title,
                 'body': post_body,
-                'date': post_date,
+                'date': datetime.datetime.utcnow().isoformat(),
                 'mediaUrl': media_url,
                 'mediaTitle': media_title
             }
@@ -53,7 +52,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 'userId': user_id,
                 'title': post_title,
                 'body': post_body,
-                'date': post_date
+                'date': datetime.datetime.utcnow().isoformat()
             }
 
 
