@@ -32,19 +32,31 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         post_title = req.form["postTitle"]
         post_body = req.form["postBody"]
         post_date = datetime.datetime.utcnow()
-        media_url = req.form["mediaUrl"]
-        media_title = req.form["mediaTitle"]
         user_id = req.form["userId"]
 
-        post = {
-            'id': uuid.uuid4().hex,
-            'userId': user_id,
-            'title': post_title,
-            'body': post_body,
-            'date': post_date,
-            'mediaUrl': media_url,
-            'mediaTitle': media_title
-        }
+        if req.form["mediaUrl"]:
+            media_url = req.form["mediaUrl"]
+            media_title = req.form["mediaTitle"]
+
+            post = {
+                'id': uuid.uuid4().hex,
+                'userId': user_id,
+                'title': post_title,
+                'body': post_body,
+                'date': post_date,
+                'mediaUrl': media_url,
+                'mediaTitle': media_title
+            }
+        else:
+            post = {
+                'id': uuid.uuid4().hex,
+                'userId': user_id,
+                'title': post_title,
+                'body': post_body,
+                'date': post_date
+            }
+
+
         cosmosContainer.create_item(post)
 
         resObj = {

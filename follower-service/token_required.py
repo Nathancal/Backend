@@ -1,5 +1,6 @@
 from functools import wraps
 import logging
+import re
 import azure.functions as httpReqFunc
 import jwt
 import json
@@ -13,14 +14,14 @@ keyVault = SecretClient(vault_url=vaultUri, credential=credential)
 
 def jwt_required(func):
     @wraps(func)
-    def jwt_required_wrapper(*args, **kwargs):
+    def jwt_required_wrapper(req: httpReqFunc.HttpRequest, *args, **kwargs):
        
+        logging.info(req.headers.get("Host"))
+        logging.info(req.headers.get("x-access-token"))
 
-        request = httpReqFunc.HttpRequest
+        token = req.headers['x-access-token']
 
-
-        token = request.headers.getter('x-access-token')
-
+        logging.info(token)
 
         if not token:
 
@@ -33,17 +34,22 @@ def jwt_required(func):
         tokenSecret = keyVault.get_secret(secret_name)
 
         logging.info(tokenSecret.value)
+        logging.info(token)
 
-        data = jwt.decode(str(token), tokenSecret.value, algorithms="HS256")
+        try:
 
-        logging.info(data["user"])
+            secret_name= "token-secret"
+            tokenSecret = keyVault.get_secret(secret_name)
 
-        if data is None: 
+            data = jwt.decode(str(token), tokenSecret.value, algorithms="HS256")
+
+        except:
+            
             resObj = {"message": "Token is invalid"}
 
             return httpReqFunc.HttpResponse(json.dumps(resObj), status_code=401)
 
 
-        return func(*args, **kwargs)
+        return func(req, *args, **kwargs)
 
     return jwt_required_wrapper
