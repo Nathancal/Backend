@@ -28,18 +28,17 @@ def jwt_required(func):
 
             return httpReqFunc.HttpResponse(json.dumps(resObj),status_code=401)
             
+     
         secret_name= "token-secret"
         tokenSecret = keyVault.get_secret(secret_name)
 
         logging.info(tokenSecret.value)
 
-        try:
+        data = jwt.decode(str(token), tokenSecret.value, algorithms="HS256")
 
+        logging.info(data["user"])
 
-            data = jwt.decode(str(token), tokenSecret.value, algorithms="HS256")
-
-        except:
-            
+        if data is None: 
             resObj = {"message": "Token is invalid"}
 
             return httpReqFunc.HttpResponse(json.dumps(resObj), status_code=401)
