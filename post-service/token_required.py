@@ -13,7 +13,6 @@ def jwt_required(func):
     @wraps(func)
     def jwt_required_wrapper(req: httpReqFunc.HttpRequest, *args, **kwargs):
        
-        logging.info(req.headers.get("Host"))
         logging.info(req.headers.get("x-access-token"))
 
         token = None
